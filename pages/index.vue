@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <div @click="trigger()">test</div>
-  </div>
+  <div @click="start()">test</div>
 </template>
 
 <script>
@@ -10,15 +8,19 @@ import Tone from "tone";
 export default {
   data: function() {
     return {
-      synth: ""
+      player: "",
+      sound: ""
     };
   },
   mounted: function() {
-    this.synth = new Tone.Synth().toMaster();
+    this.sound = require("~/assets/sound/test.wav");
+    console.log(this.sound);
+    this.player = new Tone.Player(this.sound).toMaster();
+    this.player.autostart = true;
   },
   methods: {
-    trigger: function() {
-      this.synth.triggerAttackRelease("C4", "8n");
+    start: function() {
+      this.player.start();
     }
   }
 };
