@@ -35,6 +35,7 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
+    '@/plugins/firebase'
   ],
   /*
   ** Auto import components
@@ -51,6 +52,7 @@ export default {
   */
   modules: [
     '@nuxtjs/pwa',
+    '@nuxtjs/dotenv',
   ],
   /*
   ** Build configuration
