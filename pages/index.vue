@@ -4,6 +4,7 @@
 
 <script>
 import Tone from "tone";
+import firebase from "~/plugins/firebase";
 
 export default {
   data: function() {
@@ -13,10 +14,19 @@ export default {
     };
   },
   mounted: function() {
-    this.sound = require("~/assets/sound/test.wav");
-    console.log(this.sound);
-    this.player = new Tone.Player(this.sound).toMaster();
-    this.player.autostart = true;
+    const sound = firebase
+      .storage()
+      .ref()
+      .child("nuxt-eno02.mp3")
+      .getDownloadURL()
+      .then(url => {
+        this.sound = url;
+        this.player = new Tone.Player(this.sound).toMaster();
+        this.player.autostart = true;
+      })
+      .catch(error => {
+        console.error(error);
+      });
   },
   methods: {
     start: function() {
