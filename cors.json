@@ -1,0 +1,15 @@
+[
+  {
+    "origin": [
+      "https://nii-nuxt-eno.firebaseapp.com",
+      "http://localhost:3000"
+    ],
+    "responseHeader": [
+      "*"
+    ],
+    "method": [
+      "GET"
+    ],
+    "maxAgeSeconds": 86400
+  }
+]
