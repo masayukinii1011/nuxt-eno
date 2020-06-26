@@ -11,7 +11,7 @@
       <Instrument :url="'sounds/c/nuxt-eno08.mp3'" />
     </div>
     <div v-else @click="firstClick" class="first-view">
-      Please Click The Window Anywhere.
+      Please Click The Window.
     </div>
   </div>
 </template>

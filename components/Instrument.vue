@@ -5,16 +5,16 @@
       <input @input="setVolumeAmount($event.target.value)" :value="volumeAmount" :min="volumeAmount" max="0" type="range">
     </div>
     <div>
-      <input @input="setFilterAmount($event.target.value)" :value="filterAmount" :min="filterAmount" max="100" type="range">
+      <input @input="setFilterAmount($event.target.value)" :value="filterAmount" min="0" :max="filterAmount" step="0.1" type="range">
     </div>
     <div>
-      <input @input="setTremoloAmount($event.target.value)" :value="tremoloAmount" :min="tremoloAmount" max="100" type="range">
+      <input @input="setVibratoAmount($event.target.value)" :value="vibratoAmount" :min="vibratoAmount" max="40" step="0.4" type="range">
     </div>
     <div>
-      <input @input="setDelayAmount($event.target.value)" :value="delayAmount" :min="delayAmount" max="100" type="range">
+      <input @input="setTremoloAmount($event.target.value)" :value="tremoloAmount" :min="tremoloAmount" max="8" step="0.08" type="range">
     </div>
     <div>
-      <input @input="setReverbAmount($event.target.value)" :value="reverbAmount" :min="reverbAmount" max="100" type="range">
+      <input @input="setPannerAmount($event.target.value)" :value="pannerAmount" :min="pannerAmount" max="16" step="0.16" type="range">
     </div>
   </div>
 </template>
@@ -31,21 +31,21 @@ export default {
     return {
       player: "",
       filter: "",
+      vibrato: "",
       tremolo: "",
-      delay: "",
-      reverb: "",
+      panner: "",
       volumeAmount: -100,
-      filterAmount: 0,
+      filterAmount: 10,
+      vibratoAmount: 0,
       tremoloAmount: 0,
-      delayAmount: 0,
-      reverbAmount: 0,
+      pannerAmount: 0,
     };
   },
   created: function() {
     this.initFilter();
+    this.initVibrato();
     this.initTremolo();
-    this.initDelay();
-    this.initReverb();
+    this.initPanner();
     this.initPlayer();
   },
   methods: {
@@ -56,42 +56,44 @@ export default {
     //フィルター初期化
     initFilter: function(){
       this.filter = new Tone.AutoFilter({
-        frequency: 0
+        frequency: 0,
+        octaves: this.filterAmount
       }).start();
-      this.filter.wet.value = this.filterAmount;
+    },
+
+    //ビブラート初期化
+    initVibrato: function(){
+      this.vibrato = new Tone.Vibrato({
+        frequency: this.vibratoAmount
+      });
     },
 
     //トレモロ初期化
     initTremolo: function(){
       this.tremolo = new Tone.Tremolo({
-        frequency: 1,
-        depth: 1,
+        frequency: this.tremoloAmount,
         spread: 0
+      }).start().toMaster();
+    },
+
+    //パナー初期化
+    initPanner: function(){
+      this.panner = new Tone.AutoPanner({
+        frequency: this.pannerAmount,
+        depth : 0.75
       }).start();
-      this.tremolo.wet.value = this.tremoloAmount;
-    },
-
-    //ディレイ初期化
-    initDelay: function(){
-      this.delay = new Tone.FeedbackDelay()
-      this.delay.wet.value = this.delayAmount;
-    },
-
-    //リバーブ初期化
-    initReverb: function(){
-      this.reverb = new Tone.Freeverb().toMaster()
-      this.reverb.wet.value = this.reverbAmount;
     },
 
     //プレーヤー初期化
     initPlayer: async function(){
-      /*
+
       this.player = new Tone.Player({
         url: this.url,
         loop: true,
-        //autostart: true,
-      }).chain(this.filter, this.tremolo, this.delay, this.reverb);
-*/
+        autostart: true,
+      }).chain(this.filter, this.vibrato, this.panner, this.tremolo);
+
+/*
       await firebase
         .storage()
         .ref()
@@ -102,12 +104,12 @@ export default {
             url : url,
             loop: true,
             autostart: true,
-          }).chain(this.filter, this.tremolo, this.delay, this.reverb);
+          }).chain(this.filter, this.vibrato, this.tremolo, this.reverb);
         })
         .catch(error => {
           console.error(error.message);
         });
-
+*/
       this.player.volume.value = this.volumeAmount;
     },
 
@@ -118,22 +120,22 @@ export default {
 
     //フィルター量設定
     setFilterAmount: function(value){
-      this.filter.wet.value = value;
+      this.filter.octaves = value;
+    },
+
+    //ビブラート量設定
+    setVibratoAmount: function(value){
+      this.vibrato.frequency.value = value;
     },
 
     //トレモロ量設定
     setTremoloAmount: function(value){
-      this.tremolo.wet.value = value;
+      this.tremolo.frequency.value = value;
     },
 
-    //ディレイ量設定
-    setDelayAmount: function(value){
-      this.delay.wet.value = value;
-    },
-
-    //リバーブ量設定
-    setReverbAmount: function(value){
-      this.reverb.wet.value = value;
+    //パナー量設定
+    setPannerAmount: function(value){
+      this.panner.frequency.value = value;
     },
   }
 };
