@@ -1,47 +1,72 @@
 <template>
   <div>
-    <div @click="toggleSound()">test</div>
+    <div>test</div>
   </div>
 </template>
 
 <script>
 import Tone from "tone";
 import firebase from "~/plugins/firebase";
-
+//音源ファイル小さく、ベースこみ
+//キャッシュ、ローディングアニメ
 export default {
   props: {
     url: ""
   },
   data: function() {
     return {
-      instrument: {
-        player: "",
-        isPlaying: false
-      }
+      player: "",
+      filter: "",
+      tremolo: "",
+      delay: "",
+      reverb: "",
     };
   },
   mounted: function() {
+    /*
     firebase
       .storage()
       .ref()
       .child(this.url)
       .getDownloadURL()
-      .then(file => {
-        this.instrument.player = new Tone.Player(file).toMaster();
+      .then(url => {
+        this.player = new Tone.Player({
+          "url" : url,
+        }).chain(this.reverb);
       })
       .catch(error => {
-        console.error(error);
+        console.error(error.message);
       });
+      */
+
+    this.fliter = new Tone.AutoFilter({
+      frequency: 0
+    }).start();
+    this.fliter.wet.value = 100;
+
+    this.tremolo = new Tone.Tremolo({
+      frequency: 1,
+      depth: 1,
+      spread: 0
+    }).start();
+    this.tremolo.wet.value = 0;
+
+    this.delay = new Tone.FeedbackDelay().toMaster()
+    this.delay.wet.value = 0;
+
+    this.reverb = new Tone.Freeverb().toMaster()
+    this.reverb.wet.value = 0;
+
+    this.player = new Tone.Player({
+      url: this.url,
+      loop: true,
+      autostart: true,
+    }).chain(this.fliter, this.tremolo, this.delay, this.reverb);
+
+    this.player.volume.value = -16;
   },
   methods: {
-    toggleSound: function() {
-      if (this.instrument.isPlaying) {
-        this.instrument.player.stop();
-      } else {
-        this.instrument.player.start();
-      }
-      this.instrument.isPlaying = !this.instrument.isPlaying;
-    }
+
   }
 };
 </script>

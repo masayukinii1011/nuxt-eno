@@ -90,4 +90,4 @@ sw.*
 *.swp
 
 # 追記
-assets/sound
+static/sounds
