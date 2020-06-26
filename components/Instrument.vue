@@ -22,7 +22,7 @@
 <script>
 import Tone from "tone";
 import firebase from "~/plugins/firebase";
-//キャッシュ、ローディングアニメ、トランジション
+//トランジション
 export default {
   props: {
     url: ""
@@ -41,7 +41,7 @@ export default {
       reverbAmount: 0,
     };
   },
-  mounted: function() {
+  created: function() {
     this.initFilter();
     this.initTremolo();
     this.initDelay();
@@ -84,27 +84,30 @@ export default {
     },
 
     //プレーヤー初期化
-    initPlayer: function(){
+    initPlayer: async function(){
+      /*
       this.player = new Tone.Player({
         url: this.url,
         loop: true,
         //autostart: true,
       }).chain(this.filter, this.tremolo, this.delay, this.reverb);
-      /*
-      firebase
+*/
+      await firebase
         .storage()
         .ref()
         .child(this.url)
         .getDownloadURL()
         .then(url => {
           this.player = new Tone.Player({
-            "url" : url,
-          }).chain(this.reverb);
+            url : url,
+            loop: true,
+            autostart: true,
+          }).chain(this.filter, this.tremolo, this.delay, this.reverb);
         })
         .catch(error => {
           console.error(error.message);
         });
-      */
+
       this.player.volume.value = this.volumeAmount;
     },
 

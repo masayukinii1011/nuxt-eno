@@ -1,14 +1,14 @@
 <template>
   <div>
     <div v-if="clicked" class="instruments">
-      <Instrument :url="'sounds/nuxt-eno01bass.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno04note.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno05.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno06.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno08.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno09.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno10.mp3'" />
-      <Instrument :url="'sounds/nuxt-eno11note.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno01.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno02.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno03.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno04.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno05.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno06.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno07.mp3'" />
+      <Instrument :url="'sounds/c/nuxt-eno08.mp3'" />
     </div>
     <div v-else @click="firstClick" class="first-view">
       Please Click The Window Anywhere.
