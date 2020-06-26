@@ -42,82 +42,93 @@ export default {
     };
   },
   mounted: function() {
-    /*
-    firebase
-      .storage()
-      .ref()
-      .child(this.url)
-      .getDownloadURL()
-      .then(url => {
-        this.player = new Tone.Player({
-          "url" : url,
-        }).chain(this.reverb);
-      })
-      .catch(error => {
-        console.error(error.message);
-      });
-      */
-
-    /**
-     * フィルター
-     */
-    this.filter = new Tone.AutoFilter({
-      frequency: 0
-    }).start();
-    this.filter.wet.value = this.filterAmount;
-
-    /**
-     * トレモロ
-     */
-    this.tremolo = new Tone.Tremolo({
-      frequency: 1,
-      depth: 1,
-      spread: 0
-    }).start();
-    this.tremolo.wet.value = this.tremoloAmount;
-
-    /**
-     * ディレイ
-     */
-    this.delay = new Tone.FeedbackDelay()
-    this.delay.wet.value = this.delayAmount;
-
-    /**
-     * リバーブ
-     */
-    this.reverb = new Tone.Freeverb().toMaster()
-    this.reverb.wet.value = this.reverbAmount;
-
-    /**
-     * 音源再生
-     */
-    this.player = new Tone.Player({
-      url: this.url,
-      loop: true,
-      //autostart: true,
-    }).chain(this.filter, this.tremolo, this.delay, this.reverb);
-
-    /**
-     * ボリューム
-     */
-    this.player.volume.value = this.volumeAmount;
+    this.initFilter();
+    this.initTremolo();
+    this.initDelay();
+    this.initReverb();
+    this.initPlayer();
   },
   methods: {
     start: function(){
       this.player.start();
     },
+
+    //フィルター初期化
+    initFilter: function(){
+      this.filter = new Tone.AutoFilter({
+        frequency: 0
+      }).start();
+      this.filter.wet.value = this.filterAmount;
+    },
+
+    //トレモロ初期化
+    initTremolo: function(){
+      this.tremolo = new Tone.Tremolo({
+        frequency: 1,
+        depth: 1,
+        spread: 0
+      }).start();
+      this.tremolo.wet.value = this.tremoloAmount;
+    },
+
+    //ディレイ初期化
+    initDelay: function(){
+      this.delay = new Tone.FeedbackDelay()
+      this.delay.wet.value = this.delayAmount;
+    },
+
+    //リバーブ初期化
+    initReverb: function(){
+      this.reverb = new Tone.Freeverb().toMaster()
+      this.reverb.wet.value = this.reverbAmount;
+    },
+
+    //プレーヤー初期化
+    initPlayer: function(){
+      this.player = new Tone.Player({
+        url: this.url,
+        loop: true,
+        //autostart: true,
+      }).chain(this.filter, this.tremolo, this.delay, this.reverb);
+      /*
+      firebase
+        .storage()
+        .ref()
+        .child(this.url)
+        .getDownloadURL()
+        .then(url => {
+          this.player = new Tone.Player({
+            "url" : url,
+          }).chain(this.reverb);
+        })
+        .catch(error => {
+          console.error(error.message);
+        });
+      */
+      this.player.volume.value = this.volumeAmount;
+    },
+
+    //ボリューム量設定
     setVolumeAmount: function(value){
       this.player.volume.value = value;
     },
+
+    //フィルター量設定
     setFilterAmount: function(value){
       this.filter.wet.value = value;
     },
+
+    //トレモロ量設定
     setTremoloAmount: function(value){
       this.tremolo.wet.value = value;
     },
+
+    //ディレイ量設定
     setDelayAmount: function(value){
       this.delay.wet.value = value;
     },
+
+    //リバーブ量設定
     setReverbAmount: function(value){
       this.reverb.wet.value = value;
     },
