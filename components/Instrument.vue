@@ -22,8 +22,7 @@
 <script>
 import Tone from "tone";
 import firebase from "~/plugins/firebase";
-//音源ファイル小さく、ベースこみ
-//キャッシュ、ローディングアニメ
+//キャッシュ、ローディングアニメ、トランジション
 export default {
   props: {
     url: ""
@@ -59,11 +58,17 @@ export default {
       });
       */
 
+    /**
+     * フィルター
+     */
     this.filter = new Tone.AutoFilter({
       frequency: 0
     }).start();
     this.filter.wet.value = this.filterAmount;
 
+    /**
+     * トレモロ
+     */
     this.tremolo = new Tone.Tremolo({
       frequency: 1,
       depth: 1,
@@ -71,18 +76,30 @@ export default {
     }).start();
     this.tremolo.wet.value = this.tremoloAmount;
 
+    /**
+     * ディレイ
+     */
     this.delay = new Tone.FeedbackDelay()
     this.delay.wet.value = this.delayAmount;
 
+    /**
+     * リバーブ
+     */
     this.reverb = new Tone.Freeverb().toMaster()
     this.reverb.wet.value = this.reverbAmount;
 
+    /**
+     * 音源再生
+     */
     this.player = new Tone.Player({
       url: this.url,
       loop: true,
       //autostart: true,
     }).chain(this.filter, this.tremolo, this.delay, this.reverb);
 
+    /**
+     * ボリューム
+     */
     this.player.volume.value = this.volumeAmount;
   },
   methods: {
