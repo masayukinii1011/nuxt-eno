@@ -1,7 +1,6 @@
 [
   {
     "origin": [
-      "https://nii-nuxt-eno.firebaseapp.com",
       "https://nii-nuxt-eno.web.app",
       "http://localhost:3000"
     ],
