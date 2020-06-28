@@ -86,14 +86,14 @@ export default {
 
     //プレーヤー初期化
     initPlayer: async function(){
-
+/*
       this.player = new Tone.Player({
         url: this.url,
         loop: true,
         autostart: true,
       }).chain(this.filter, this.vibrato, this.panner, this.tremolo);
+*/
 
-/*
       await firebase
         .storage()
         .ref()
@@ -109,7 +109,7 @@ export default {
         .catch(error => {
           console.error(error.message);
         });
-*/
+
       this.player.volume.value = this.volumeAmount;
     },
 

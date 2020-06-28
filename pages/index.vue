@@ -1,6 +1,7 @@
 <template>
   <div>
     <div v-if="clicked" class="instruments">
+      <div>Mix Your Own Vibes.</div>
       <Instrument :url="'sounds/c/nuxt-eno01.mp3'" />
       <Instrument :url="'sounds/c/nuxt-eno02.mp3'" />
       <Instrument :url="'sounds/c/nuxt-eno03.mp3'" />
