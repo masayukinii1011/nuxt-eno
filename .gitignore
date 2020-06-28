@@ -89,5 +89,4 @@ sw.*
 # Vim swap files
 *.swp
 
-# 追記
-static/sounds
+.firebase
