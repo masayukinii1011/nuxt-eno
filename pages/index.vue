@@ -11,9 +11,7 @@
       <Instrument :url="'sounds/c/nuxt-eno07.mp3'" />
       <Instrument :url="'sounds/c/nuxt-eno08.mp3'" />
     </div>
-    <div v-else @click="firstClick" class="first-view">
-      Please Click The Window.
-    </div>
+    <div v-else @click="firstClick" class="first-view">Please Click The Window.</div>
   </div>
 </template>
 
@@ -31,7 +29,7 @@ export default {
   },
   methods: {
     firstClick: function() {
-        this.clicked = true
+      this.clicked = true;
     }
   }
 };
