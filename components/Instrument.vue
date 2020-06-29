@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <div @click="start()">test</div>
+  <div class="container">
+    <div>{{title}}</div>
     <div>
+      <span class="input-label">Volume</span>
       <input
         @input="setVolumeAmount($event.target.value)"
         :value="volumeAmount"
@@ -11,6 +12,7 @@
       />
     </div>
     <div>
+      <span class="input-label">Filter</span>
       <input
         @input="setFilterAmount($event.target.value)"
         :value="filterAmount"
@@ -21,6 +23,7 @@
       />
     </div>
     <div>
+      <span class="input-label">Vibrato</span>
       <input
         @input="setVibratoAmount($event.target.value)"
         :value="vibratoAmount"
@@ -31,6 +34,7 @@
       />
     </div>
     <div>
+      <span class="input-label">Tremolo</span>
       <input
         @input="setTremoloAmount($event.target.value)"
         :value="tremoloAmount"
@@ -41,6 +45,7 @@
       />
     </div>
     <div>
+      <span class="input-label">Panner</span>
       <input
         @input="setPannerAmount($event.target.value)"
         :value="pannerAmount"
@@ -59,6 +64,7 @@ import firebase from "~/plugins/firebase";
 //トランジション
 export default {
   props: {
+    title: "",
     url: ""
   },
   data: function() {
@@ -83,10 +89,6 @@ export default {
     this.initPlayer();
   },
   methods: {
-    start: function() {
-      this.player.start();
-    },
-
     //フィルター初期化
     initFilter: function() {
       this.filter = new Tone.AutoFilter({
@@ -176,5 +178,13 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.container {
+  margin: 16px 0;
+}
+
+.input-label {
+  width: 60px;
+  display: inline-block;
+}
 </style>
