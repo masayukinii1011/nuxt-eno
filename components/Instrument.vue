@@ -61,7 +61,7 @@
 <script>
 import Tone from "tone";
 import firebase from "~/plugins/firebase";
-//トランジション
+
 export default {
   props: {
     title: "",
@@ -69,6 +69,8 @@ export default {
   },
   data: function() {
     return {
+      buffer: "",
+      loaded: false,
       player: "",
       filter: "",
       vibrato: "",
@@ -80,6 +82,14 @@ export default {
       tremoloAmount: 0,
       pannerAmount: 0
     };
+  },
+  watch: {
+    buffer: function() {
+      if (!this.loaded) {
+        this.loaded = true;
+        this.$emit("loaded");
+      }
+    }
   },
   created: function() {
     this.initFilter();
@@ -130,7 +140,7 @@ export default {
         loop: true,
         autostart: true
       }).chain(this.filter, this.vibrato, this.panner, this.tremolo);
-      */
+*/
       await firebase
         .storage()
         .ref()
@@ -148,6 +158,7 @@ export default {
         });
 
       this.player.volume.value = this.volumeAmount;
+      this.buffer = this.player.buffer;
     },
 
     //ボリューム量設定
