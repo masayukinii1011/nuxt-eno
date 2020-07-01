@@ -2,7 +2,10 @@
   <div class="container">
     <div v-if="clicked" class="clicked-container">
       <div v-show="loadedAll" class="loaded-container">
-        <div class="title">Mix Your Own Vibes.</div>
+        <div class="title">
+          Mix Your Own Vibes
+          <span v-if="false">Less Is More.Slowly.</span>
+        </div>
         <div class="instruments">
           <div class="instrument">
             <Instrument :title="'01'" :url="'sounds/c/nuxt-eno01.mp3'" @loaded="loadEvent()" />
@@ -33,7 +36,7 @@
       <div v-show="!loadedAll" class="loading-text">Loading...</div>
     </div>
     <div v-else @click="firstClick" class="first-view">
-      <div class="first-view-text">Please Click The Window.</div>
+      <div class="first-view-text">Please Click The Window</div>
     </div>
   </div>
 </template>
@@ -73,7 +76,7 @@ export default {
 }
 
 .title {
-  font-size: 54px;
+  font-size: 40px;
   margin: 16px 0 24px;
 }
 
@@ -83,7 +86,8 @@ export default {
 }
 
 .loaded-container {
-  width: 896px;
+  max-width: 896px;
+  padding: 0px 24px;
   margin: 0 auto 48px;
 }
 
@@ -100,7 +104,7 @@ export default {
 }
 
 .loading-text {
-  font-size: 24px;
+  font-size: 34px;
   margin: 8px;
 }
 
@@ -111,7 +115,33 @@ export default {
 }
 
 .first-view-text {
-  font-size: 24px;
-  margin: 8px;
+  font-size: 34px;
+  white-space: nowrap;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+}
+
+@media screen and (max-width: 767px) {
+  .instruments {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 424px) {
+  .title {
+    font-size: 28px;
+  }
+
+  .loading-text {
+    font-size: 26px;
+    margin: 8px;
+  }
+
+  .first-view-text {
+    font-size: 26px;
+  }
 }
 </style>

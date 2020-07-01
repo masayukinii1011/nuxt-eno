@@ -2,7 +2,7 @@
   <div class="instrument-container">
     <div class="instrument-title">{{title}}</div>
     <div class="input-container">
-      <div>
+      <div class="input-wrapper">
         <span class="input-label">Volume</span>
         <input
           @input="setVolumeAmount($event.target.value)"
@@ -14,7 +14,7 @@
           step="0.64"
         />
       </div>
-      <div>
+      <div class="input-wrapper">
         <span class="input-label">Filter</span>
         <input
           @input="setFilterAmount($event.target.value)"
@@ -26,7 +26,7 @@
           class="input"
         />
       </div>
-      <div>
+      <div class="input-wrapper">
         <span class="input-label">Vibrato</span>
         <input
           @input="setVibratoAmount($event.target.value)"
@@ -38,7 +38,7 @@
           class="input"
         />
       </div>
-      <div>
+      <div class="input-wrapper">
         <span class="input-label">Tremolo</span>
         <input
           @input="setTremoloAmount($event.target.value)"
@@ -50,7 +50,7 @@
           class="input"
         />
       </div>
-      <div>
+      <div class="input-wrapper">
         <span class="input-label">Panner</span>
         <input
           @input="setPannerAmount($event.target.value)"
@@ -201,33 +201,51 @@ export default {
 <style scoped>
 .instrument-container {
   width: 100%;
-  height: 268px;
-  padding: 24px;
+  height: 292px;
+  padding: 20px;
   border-radius: 16px;
-  border: 1px solid rgba(243, 247, 250, 0.05);
-  box-shadow: 6px 6px 12px #b8b9be, -6px -6px 12px #fff;
+  box-shadow: -4px -4px 8px rgba(255, 255, 255, 0.05),
+    4px 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 .instrument-title {
-  margin-bottom: 12px;
+  color: #767676;
   font-size: 24px;
+  margin-bottom: 12px;
 }
 
 .input-container {
   display: flex;
   flex-flow: column;
   justify-content: space-between;
-  height: 80%;
+  height: 208px;
+}
+
+.input-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
 .input-label {
-  width: 16%;
-  font-size: 14px;
   display: inline-block;
+  color: #666666;
+  font-size: 14px;
 }
 
 .input {
+  display: inline-block;
   width: 80%;
   cursor: pointer;
+}
+
+@media screen and (max-width: 424px) {
+  .input-wrapper {
+    flex-flow: column;
+  }
+
+  .input {
+    width: 100%;
+  }
 }
 </style>
