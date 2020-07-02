@@ -1,38 +1,40 @@
 <template>
   <div class="container">
     <div v-if="clicked" class="clicked-container">
-      <div v-show="loadedAll" class="loaded-container">
-        <div class="title">
-          Mix Your Own Vibes
-          <span v-if="false">Less Is More.Slowly.</span>
+      <transition name="loaded">
+        <div v-show="loadedAll" class="loaded-container">
+          <div class="title">
+            Mix Your Own Vibes
+            <span v-if="false">Less Is More.Slowly.</span>
+          </div>
+          <div class="instruments">
+            <div class="instrument">
+              <Instrument :title="'01'" :url="'sounds/c/nuxt-eno01.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'02'" :url="'sounds/c/nuxt-eno02.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'03'" :url="'sounds/c/nuxt-eno03.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'04'" :url="'sounds/c/nuxt-eno04.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'05'" :url="'sounds/c/nuxt-eno05.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'06'" :url="'sounds/c/nuxt-eno06.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'07'" :url="'sounds/c/nuxt-eno07.mp3'" @loaded="loadEvent()" />
+            </div>
+            <div class="instrument">
+              <Instrument :title="'08'" :url="'sounds/c/nuxt-eno08.mp3'" @loaded="loadEvent()" />
+            </div>
+          </div>
         </div>
-        <div class="instruments">
-          <div class="instrument">
-            <Instrument :title="'01'" :url="'sounds/c/nuxt-eno01.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'02'" :url="'sounds/c/nuxt-eno02.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'03'" :url="'sounds/c/nuxt-eno03.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'04'" :url="'sounds/c/nuxt-eno04.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'05'" :url="'sounds/c/nuxt-eno05.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'06'" :url="'sounds/c/nuxt-eno06.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'07'" :url="'sounds/c/nuxt-eno07.mp3'" @loaded="loadEvent()" />
-          </div>
-          <div class="instrument">
-            <Instrument :title="'08'" :url="'sounds/c/nuxt-eno08.mp3'" @loaded="loadEvent()" />
-          </div>
-        </div>
-      </div>
+      </transition>
       <div v-show="!loadedAll" class="loading-text">Loading...</div>
     </div>
     <div v-else @click="firstClick" class="first-view">
@@ -70,6 +72,27 @@ export default {
 </script>
 
 <style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: 4s ease-out;
+}
+
+.v-enter,
+.v-leave-to {
+  opacity: 0;
+}
+
+.loaded-enter-active,
+.loaded-leave-active {
+  transition: transform 0.8s ease-out, opacity 2s ease-out;
+}
+
+.loaded-enter,
+.loaded-leave-to {
+  transform: translateY(80px);
+  opacity: 0;
+}
+
 .container {
   width: 100vw;
   height: 100vh;
@@ -105,7 +128,11 @@ export default {
 
 .loading-text {
   font-size: 34px;
-  margin: 8px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
 }
 
 .first-view {
@@ -122,6 +149,16 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
+  animation: fadeIn 4.8s ease-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @media screen and (max-width: 767px) {
@@ -137,7 +174,6 @@ export default {
 
   .loading-text {
     font-size: 26px;
-    margin: 8px;
   }
 
   .first-view-text {
