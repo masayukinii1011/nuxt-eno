@@ -39,7 +39,7 @@
       <div v-show="!loadedAll" class="loading-text">Loading...</div>
     </div>
     <div v-else @click="firstClick" class="first-view">
-      Click
+      <div>Click</div>
     </div>
   </div>
   </div>
@@ -115,6 +115,14 @@ export default {
 .wrap {
   width: 100vw;
   height: 100vh;
+}
+
+.container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .title {
