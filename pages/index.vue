@@ -1,7 +1,7 @@
 <template>
-  <div>
-  <canvas id="myCanvas" width="2000" height="1400"></canvas>
-  <div class="container">
+  <div class="wrap" ref="wrap">
+  <Canvas :canvasWidth="wrapWidth" :canvasHeight="wrapHeight" />
+  <div class="container" ref="container">
     <div v-if="clicked" class="clicked-container">
       <transition name="loaded">
         <div v-show="loadedAll" class="loaded-container">
@@ -39,7 +39,7 @@
       <div v-show="!loadedAll" class="loading-text">Loading...</div>
     </div>
     <div v-else @click="firstClick" class="first-view">
-      <div class="first-view-text">Please Click The Window</div>
+      Click
     </div>
   </div>
   </div>
@@ -47,93 +47,25 @@
 
 <script>
 import Instrument from "~/components/Instrument.vue";
-import { Shape, Stage, Ticker, Graphics} from '@createjs/easeljs';
-import { Tween } from '@createjs/tweenjs';
+import Canvas from "~/components/Canvas.vue";
 
 export default {
   components: {
-    Instrument
+    Instrument,
+    Canvas
   },
   data: function() {
     return {
       clicked: false,
       loadedAll: false,
-      loadedCount: 0
+      loadedCount: 0,
+      wrapWidth: '',
+      wrapHeight: ''
     };
   },
   mounted() {
-    const stage = new Stage('myCanvas');
-    const particles = [];
-
-    //Ticker.timingMode = Ticker.RAF;
-    //Ticker.addEventListener("tick", handleTick);
-    setInterval(handleTick, 100);
-    function handleTick(event) {
-      emitParticles();
-      updateParticles();
-      stage.update();
-    }
-
-    let count = 0;
-    const MAX_LIFE = 10;
-
-    function emitParticles() {
-      for (var i = 0; i < 5; i++) {
-        count += 1;
-        const particle = new Shape();
-        particle.graphics
-          .beginFill(Graphics.getHSL(count, 50, 50, Math.random()))
-          .drawCircle(0, 0, 10 * Math.random());
-
-        stage.addChild(particle);
-        particle.compositeOperation = "lighter";
-
-          // パーティクルの発生場所
-          particle.x = stage.canvas.width * Math.random();
-          particle.y = stage.canvas.height * Math.random();
-
-          // 動的にプロパティーを追加します。
-          // 速度
-          particle.vx = 2 * Math.random();
-          particle.vy = 2 * Math.random();
-          // 寿命
-          particle.life = MAX_LIFE;
-
-          particles.push(particle);
-        }
-      }
-
-      // パーティクルを更新します
-      function updateParticles() {
-        // パーティクルの計算を行う
-        for (var i = 0; i < particles.length; i++) {
-          // オブジェクトの作成
-          var particle = particles[i];
-
-          // 重力
-          particle.vy += 1;
-
-          // 摩擦
-          particle.vx *= 0.96;
-          particle.vy *= 0.96;
-
-          // 速度を位置に適用
-          particle.x += particle.vx;
-          particle.y += particle.vy;
-
-          // パーティクルのサイズをライフ依存にする
-          var scale = particle.life / MAX_LIFE;
-          particle.scaleX = particle.scaleY = scale;
-
-          // 寿命を減らす
-          particle.life -= 1;
-
-          if (particle.life <= 0) {
-            stage.removeChild(particle);
-            particles.splice(i, 1);
-          }
-        }
-      }
+    this.onResize();
+    window.addEventListener('resize', this.onResize)
   },
   methods: {
     firstClick: function() {
@@ -143,6 +75,15 @@ export default {
       this.loadedCount++;
       if (this.loadedCount >= 8) {
         this.loadedAll = true;
+      }
+    },
+    onResize: function() {
+      if(this.loadedAll) {
+        this.wrapWidth = this.$refs.container.clientWidth
+        this.wrapHeight = this.$refs.container.clientHeight
+      } else {
+        this.wrapWidth = this.$refs.wrap.clientWidth
+        this.wrapHeight = this.$refs.wrap.clientHeight
       }
     }
   }
@@ -171,17 +112,9 @@ export default {
   opacity: 0;
 }
 
-.container {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-}
-
-#myCanvas {
-  width: 100%;
-  height: 100%;
+.wrap {
+  width: 100vw;
+  height: 100vh;
 }
 
 .title {
@@ -222,12 +155,7 @@ export default {
 }
 
 .first-view {
-  width: 100%;
-  height: 100%;
   cursor: pointer;
-}
-
-.first-view-text {
   font-size: 34px;
   white-space: nowrap;
   position: absolute;
@@ -262,7 +190,7 @@ export default {
     font-size: 26px;
   }
 
-  .first-view-text {
+  .first-view {
     font-size: 26px;
   }
 }
