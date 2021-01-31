@@ -25,9 +25,9 @@
 
 ## 使用している技術
 Nuxt.js(フロントエンド)  
-Tone.js(Web Audio APIを扱うライブラリ)  
 Firebase Hosting(ホスティング)  
 Firebase Cloud Storage(音源ファイルを保存)
+CreateJS(アニメーション)
 
 ## Build Setup
 
