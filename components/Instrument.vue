@@ -4,27 +4,14 @@
       <div class="instrument-title">
         {{ trackId }} · {{ label }}
       </div>
-      <p v-if="description" class="instrument-description">
-        {{ description }}
-      </p>
     </div>
     <div class="input-container">
       <div
-        v-for="effect in effects"
+        v-for="effect in effectLabels"
         :key="effect.id"
         class="input-wrapper"
       >
-        <span class="input-label">
-          {{ effect.label }}
-          <button
-            type="button"
-            class="help-button"
-            :aria-label="`${effect.label}の説明`"
-            :title="effect.description"
-          >
-            ?
-          </button>
-        </span>
+        <span class="input-label">{{ effect.label }}</span>
         <input
           :value="values[effect.id]"
           :min="ranges[effect.id].min"
@@ -45,7 +32,14 @@
 
 <script>
 import firebase from '~/plugins/firebase'
-import effects from '~/data/effects.json'
+
+const EFFECT_LABELS = [
+  { id: 'volume', label: 'Volume' },
+  { id: 'filter', label: 'Filter' },
+  { id: 'vibrato', label: 'Vibrato' },
+  { id: 'tremolo', label: 'Tremolo' },
+  { id: 'panner', label: 'Panner' }
+]
 
 const DEFAULT_VALUES = {
   volume: -64,
@@ -73,10 +67,6 @@ export default {
       type: String,
       required: true
     },
-    description: {
-      type: String,
-      default: ''
-    },
     url: {
       type: String,
       required: true
@@ -84,7 +74,7 @@ export default {
   },
   data () {
     return {
-      effects,
+      effectLabels: EFFECT_LABELS,
       ranges: RANGES,
       values: { ...DEFAULT_VALUES },
       loaded: false,
@@ -144,16 +134,18 @@ export default {
 
     async initPlayer () {
       try {
-        const downloadUrl = await firebase
-          .storage()
-          .ref()
-          .child(this.url)
-          .getDownloadURL()
+        const audioUrl = this.url.startsWith('/')
+          ? this.url
+          : await firebase
+            .storage()
+            .ref()
+            .child(this.url)
+            .getDownloadURL()
 
         const Tone = this.$tone
 
         this.player = new Tone.Player({
-          url: downloadUrl,
+          url: audioUrl,
           loop: true,
           autostart: true
         })
@@ -177,7 +169,11 @@ export default {
         // eslint-disable-next-line no-console
         console.error(error.message)
         this.loadError = true
-        this.$emit('load-error', { trackId: this.trackId, message: error.message })
+        this.$emit('load-error', {
+          trackId: this.trackId,
+          message: error.message,
+          code: error.code || ''
+        })
       }
     },
 
@@ -240,14 +236,7 @@ export default {
 .instrument-title {
   color: #767676;
   font-size: 24px;
-}
-
-.instrument-description {
-  margin-top: 6px;
-  color: #888888;
-  font-size: 13px;
-  font-weight: normal;
-  line-height: 1.4;
+  margin-bottom: 12px;
 }
 
 .input-container {
@@ -265,24 +254,9 @@ export default {
 }
 
 .input-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  display: inline-block;
   color: #666666;
   font-size: 14px;
-}
-
-.help-button {
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 1px solid #555555;
-  border-radius: 50%;
-  background: transparent;
-  color: #888888;
-  font-size: 11px;
-  line-height: 1;
-  cursor: help;
 }
 
 .input {

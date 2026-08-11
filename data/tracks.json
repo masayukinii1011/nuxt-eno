@@ -2,49 +2,41 @@
   {
     "id": "01",
     "label": "Pad",
-    "description": "柔らかなシンセパッド",
-    "path": "sounds/c/nuxt-eno01.mp3"
+    "path": "/sounds/c/nuxt-eno01.mp3"
   },
   {
     "id": "02",
     "label": "Drone",
-    "description": "低く響く持続音",
-    "path": "sounds/c/nuxt-eno02.mp3"
+    "path": "/sounds/c/nuxt-eno02.mp3"
   },
   {
     "id": "03",
     "label": "Texture",
-    "description": "粒状のテクスチャー",
-    "path": "sounds/c/nuxt-eno03.mp3"
+    "path": "/sounds/c/nuxt-eno03.mp3"
   },
   {
     "id": "04",
     "label": "Bell",
-    "description": "澄んだ鐘のような音",
-    "path": "sounds/c/nuxt-eno04.mp3"
+    "path": "/sounds/c/nuxt-eno04.mp3"
   },
   {
     "id": "05",
     "label": "Wind",
-    "description": "風のような息づかい",
-    "path": "sounds/c/nuxt-eno05.mp3"
+    "path": "/sounds/c/nuxt-eno05.mp3"
   },
   {
     "id": "06",
     "label": "Pulse",
-    "description": "ゆるやかなリズム感",
-    "path": "sounds/c/nuxt-eno06.mp3"
+    "path": "/sounds/c/nuxt-eno06.mp3"
   },
   {
     "id": "07",
     "label": "Shimmer",
-    "description": "きらめく高域のレイヤー",
-    "path": "sounds/c/nuxt-eno07.mp3"
+    "path": "/sounds/c/nuxt-eno07.mp3"
   },
   {
     "id": "08",
     "label": "Space",
-    "description": "広がりのある残響感",
-    "path": "sounds/c/nuxt-eno08.mp3"
+    "path": "/sounds/c/nuxt-eno08.mp3"
   }
 ]

@@ -24,7 +24,11 @@
               </button>
             </div>
             <div v-if="loadErrors.length" class="error-banner">
-              一部の音源を読み込めませんでした（{{ loadErrors.length }}件）
+              <p>一部の音源を読み込めませんでした（{{ loadErrors.length }}件）</p>
+              <p v-if="isStorageQuotaError" class="error-banner-detail">
+                Firebase Storage が Spark プランでは利用できなくなっています。
+                Blaze プランへアップグレード後に <code>npm run download-sounds</code> を実行し、再デプロイしてください。
+              </p>
             </div>
             <div class="instruments">
               <div
@@ -36,7 +40,6 @@
                   ref="instruments"
                   :track-id="track.id"
                   :label="track.label"
-                  :description="track.description"
                   :url="track.path"
                   @loaded="loadEvent"
                   @load-error="loadErrorEvent"
@@ -84,6 +87,14 @@ export default {
       loadErrors: [],
       wrapWidth: 0,
       wrapHeight: 0
+    }
+  },
+  computed: {
+    isStorageQuotaError () {
+      return this.loadErrors.some((error) => {
+        return error.code === 'storage/quota-exceeded' ||
+          (error.message && error.message.includes('402'))
+      })
     }
   },
   mounted () {
@@ -205,6 +216,11 @@ export default {
   color: #ff8a8a;
   font-size: 14px;
   font-weight: normal;
+}
+
+.error-banner-detail {
+  margin-top: 8px;
+  line-height: 1.5;
 }
 
 .clicked-container {
