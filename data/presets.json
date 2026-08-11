@@ -1,0 +1,62 @@
+[
+  {
+    "id": "reset",
+    "label": "Reset",
+    "description": "すべてのレイヤーを初期状態に戻します",
+    "values": {
+      "volume": -64,
+      "filter": 10,
+      "vibrato": 0,
+      "tremolo": 0,
+      "panner": 0
+    }
+  },
+  {
+    "id": "soft-ambient",
+    "label": "Soft Ambient",
+    "description": "穏やかで柔らかいミックス",
+    "values": {
+      "volume": -20,
+      "filter": 6,
+      "vibrato": 2,
+      "tremolo": 1,
+      "panner": 2
+    }
+  },
+  {
+    "id": "deep-focus",
+    "label": "Deep Focus",
+    "description": "集中向けの落ち着いた低域中心ミックス",
+    "values": {
+      "volume": -28,
+      "filter": 8,
+      "vibrato": 0,
+      "tremolo": 0.5,
+      "panner": 0
+    }
+  },
+  {
+    "id": "dreamscape",
+    "label": "Dreamscape",
+    "description": "浮遊感のある広がりのあるミックス",
+    "values": {
+      "volume": -16,
+      "filter": 4,
+      "vibrato": 6,
+      "tremolo": 2,
+      "panner": 8
+    }
+  },
+  {
+    "id": "minimal",
+    "label": "Minimal",
+    "description": "少数レイヤーだけを活かす控えめミックス",
+    "values": {
+      "volume": -48,
+      "filter": 10,
+      "vibrato": 0,
+      "tremolo": 0,
+      "panner": 4
+    }
+  }
+]

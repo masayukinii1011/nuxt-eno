@@ -1,65 +1,53 @@
 
 export default {
-  /*
-  ** Nuxt rendering mode
-  ** See https://nuxtjs.org/api/configuration-mode
-  */
-  mode: 'spa',
-  /*
-  ** Nuxt target
-  ** See https://nuxtjs.org/api/configuration-target
-  */
+  ssr: false,
   target: 'static',
-  /*
-  ** Headers of the page
-  ** See https://nuxtjs.org/api/configuration-head
-  */
   head: {
-    title: process.env.npm_package_name || '',
+    title: 'nuxt-eno | 環境音楽ミキサー',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'アンビエントミュージック（環境音楽）を8つのレイヤーでミックスできるWebアプリです。'
+      },
+      { hid: 'og:title', property: 'og:title', content: 'nuxt-eno | 環境音楽ミキサー' },
+      {
+        hid: 'og:description',
+        property: 'og:description',
+        content: '音楽の知識がなくても、環境音楽を聴いたり作ったりできるアプリです。'
+      },
+      { hid: 'og:type', property: 'og:type', content: 'website' },
+      { hid: 'og:url', property: 'og:url', content: 'https://nii-nuxt-eno.web.app/' }
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
-  /*
-  ** Global CSS
-  */
-  css: [
-  ],
-  /*
-  ** Plugins to load before mounting the App
-  ** https://nuxtjs.org/guide/plugins
-  */
+  css: [],
   plugins: [
-    '@/plugins/firebase'
+    '@/plugins/firebase',
+    '@/plugins/tone.client.js'
   ],
-  /*
-  ** Auto import components
-  ** See https://nuxtjs.org/api/configuration-components
-  */
   components: true,
-  /*
-  ** Nuxt.js dev-modules
-  */
-  buildModules: [
-  ],
-  /*
-  ** Nuxt.js modules
-  */
+  buildModules: [],
   modules: [
     '@nuxtjs/pwa',
-    '@nuxtjs/dotenv',
+    '@nuxtjs/dotenv'
   ],
-  /*
-  ** Build configuration
-  ** See https://nuxtjs.org/api/configuration-build/
-  */
+  pwa: {
+    manifest: {
+      name: 'nuxt-eno',
+      short_name: 'nuxt-eno',
+      lang: 'ja',
+      description: '環境音楽をミックスできるアプリ',
+      theme_color: '#131419',
+      background_color: '#131419'
+    }
+  },
   build: {
-    extend(config, ctx) {
+    extend (config) {
       config.module.rules.push({
         test: /\.(ogg|mp3|wav|mpe?g)$/i,
         loader: 'file-loader',
