@@ -21,7 +21,7 @@
     "@nuxtjs/pwa": "^3.3.5",
     "firebase": "^10.14.1",
     "nuxt": "^2.18.1",
-    "tone": "^14.8.49"
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^6.0.1",
