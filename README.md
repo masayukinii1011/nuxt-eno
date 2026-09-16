@@ -1,6 +1,6 @@
 # nuxt-eno
 
-8つのレイヤーをリアルタイムにミックスして、自分だけの環境音楽（アンビエント）を作れる Web アプリです。
+8つのレイヤーをリアルタイムにミックスして、自分だけの環境音楽（アンビエント）を作れる Web アプリです。作ったミックスは URL で共有できます。
 
 **本番:** https://nii-nuxt-eno.web.app/
 
@@ -9,6 +9,9 @@
 1. 画面をクリックして音声を開始する
 2. 8つのレイヤーそれぞれのスライダーで音量・エフェクトを調整する
 3. 上部のプリセットボタンでミックス全体を切り替える（最後に選んだプリセットはブラウザに保存されます）
+4. タイトル（任意）を入れて Share を押すと、同じミックスを再生できる URL（`/mix/{id}`）が発行されます
+
+共有 URL を開いた相手も、クリック後に同じ 8 レイヤー・同じエフェクト状態で再生できます。ミックスは保存時点のスナップショットで、あとから編集はできません。開き直して触って Share すると、新しい URL が発行されます。
 
 音楽の知識がなくても、聴きながら・触りながら環境音楽を楽しめます。
 
@@ -44,6 +47,7 @@
 | 音声処理 | Tone.js |
 | 背景アニメーション | CreateJS |
 | ホスティング | Firebase Hosting |
+| ミックス保存 | Cloud Firestore（データベース `mixes` の `mixes/{id}`） |
 | 音源配信 | Firebase Hosting（`static/sounds/c/`） |
 
 ## 開発
@@ -76,12 +80,14 @@ npm run download-sounds  # Storage から音源を取得（後述）
 
 ## デプロイ
 
+既存プロジェクトの `(default)` は Datastore モードのため、ミックスは Native モードのデータベース `mixes`（asia-northeast1）に保存します。ルールは認証なしの作成と公開読み取りを許可しています。一覧・いいね・認証はまだないため、スパム対策は面接後の課題です。
+
 ```bash
 npm run generate
-firebase deploy --only hosting
+firebase deploy --only firestore,hosting
 ```
 
-`master` への push 時は GitHub Actions から Hosting へ自動デプロイされます。以下の Secrets が必要です。
+`master` への push 時は GitHub Actions から Hosting へ自動デプロイされます。Firestore ルールは上記コマンドで別途デプロイしてください。以下の Secrets が必要です。
 
 - `FIREBASE_API_KEY` / `FIREBASE_AUTH_DOMAIN` / `FIREBASE_DATABASE_URL`
 - `FIREBASE_PROJECT_ID` / `FIREBASE_STORAGE_BUCKET`
@@ -107,14 +113,16 @@ firebase deploy --only hosting
 ```
 components/     Instrument.vue, Canvas.vue
 data/           tracks.json, presets.json
-pages/          index.vue（メイン画面）
+lib/            mix.js（スナップショット・Firestore）
+pages/          index.vue（メイン画面と `/mix/:id`）
 plugins/        firebase.js, tone.client.js
+firestore.rules ミックスの公開読み取り・作成のみ
 static/sounds/  音源 MP3
 scripts/        download-sounds.mjs
 ```
 
 ## 今後の構想
 
+- 作ったミックスの URL 共有（最小構成として実装済み）
 - アプリ上で音源を作成できる環境
-- 作成した音源の投稿・シェア
-- 誰もが環境音楽を作成・ミックスできるプラットフォーム
+- ユーザー登録・一覧・いいねなど、誰もが環境音楽を作成・ミックスできるプラットフォーム

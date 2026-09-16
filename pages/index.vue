@@ -6,7 +6,7 @@
         <transition name="loaded">
           <div v-show="loadedAll" class="loaded-container">
             <div class="title">
-              Mix Your Own Vibes
+              {{ displayedTitle }}
             </div>
             <p class="subtitle">
               8つのレイヤーを組み合わせて、自分だけの環境音楽を作りましょう。
@@ -23,6 +23,43 @@
                 {{ preset.label }}
               </button>
             </div>
+            <form
+              class="share-form"
+              @submit.prevent="shareMix"
+            >
+              <div class="share-field">
+                <label
+                  class="share-label"
+                  for="mix-title"
+                >タイトル（任意）</label>
+                <input
+                  id="mix-title"
+                  v-model="mixTitleInput"
+                  class="share-input"
+                  name="title"
+                  type="text"
+                  :maxlength="titleMaxLength"
+                  autocomplete="off"
+                  enterkeyhint="done"
+                  aria-describedby="share-status"
+                >
+              </div>
+              <button
+                class="preset-button share-button"
+                type="submit"
+                :disabled="sharing"
+              >
+                {{ sharing ? 'Sharing...' : 'Share' }}
+              </button>
+            </form>
+            <p
+              id="share-status"
+              class="share-status"
+              :class="{ 'share-status-error': Boolean(shareError || mixLoadError) }"
+              aria-live="polite"
+            >
+              {{ mixLoadError || shareError || shareNotice }}
+            </p>
             <div v-if="loadErrors.length" class="error-banner">
               <p>一部の音源を読み込めませんでした（{{ loadErrors.length }}件）</p>
               <p v-if="isStorageQuotaError" class="error-banner-detail">
@@ -57,7 +94,7 @@
           Click
         </div>
         <p class="first-view-description">
-          クリックで音声を開始し、8つのレイヤーをミックスできます
+          {{ firstViewDescription }}
         </p>
       </div>
     </div>
@@ -69,6 +106,13 @@ import Instrument from '~/components/Instrument.vue'
 import Canvas from '~/components/Canvas.vue'
 import tracks from '~/data/tracks.json'
 import presets from '~/data/presets.json'
+import {
+  TITLE_MAX_LENGTH,
+  DEFAULT_TITLE,
+  snapshotMix,
+  createMix,
+  getMix
+} from '~/lib/mix'
 
 const PRESET_STORAGE_KEY = 'nuxt-eno:last-preset'
 
@@ -86,15 +130,48 @@ export default {
       loadedCount: 0,
       loadErrors: [],
       wrapWidth: 0,
-      wrapHeight: 0
+      wrapHeight: 0,
+      mixTitleInput: '',
+      titleMaxLength: TITLE_MAX_LENGTH,
+      sharing: false,
+      shareNotice: '',
+      shareError: '',
+      mixLoadError: '',
+      sharedMix: null,
+      mixLoadPromise: null
     }
   },
   computed: {
+    mixId () {
+      return this.$route.name === 'mix-id' ? this.$route.params.id : null
+    },
+    displayedTitle () {
+      if (this.sharedMix && this.sharedMix.title) {
+        return this.sharedMix.title
+      }
+
+      return 'Mix Your Own Vibes'
+    },
+    firstViewDescription () {
+      if (this.mixId) {
+        return 'クリックで共有されたミックスを再生します'
+      }
+
+      return 'クリックで音声を開始し、8つのレイヤーをミックスできます'
+    },
     isStorageQuotaError () {
       return this.loadErrors.some((error) => {
         return error.code === 'storage/quota-exceeded' ||
           (error.message && error.message.includes('402'))
       })
+    }
+  },
+  watch: {
+    mixId: {
+      immediate: true,
+      handler () {
+        this.mixLoadPromise = this.loadSharedMix()
+      }
     }
   },
   mounted () {
@@ -114,7 +191,7 @@ export default {
       if (this.loadedCount >= this.tracks.length) {
         this.loadedAll = true
         this.onResize()
-        this.restoreLastPreset()
+        this.restoreMixOrPreset()
       }
     },
     loadErrorEvent (error) {
@@ -145,6 +222,120 @@ export default {
       const preset = this.presets.find(item => item.id === lastPresetId)
       if (preset) {
         this.applyPreset(preset)
+      }
+    },
+    async restoreMixOrPreset () {
+      if (this.mixId && this.mixLoadPromise) {
+        await this.mixLoadPromise
+      }
+
+      if (this.sharedMix) {
+        this.applySharedMix(this.sharedMix)
+        return
+      }
+
+      this.restoreLastPreset()
+    },
+    applySharedMix (mix) {
+      const instrumentRefs = this.$refs.instruments || []
+
+      instrumentRefs.forEach((instrument) => {
+        const track = mix.tracks.find(item => item.id === instrument.trackId)
+        if (track) {
+          instrument.applyPreset(track)
+        }
+      })
+    },
+    async loadSharedMix () {
+      const id = this.mixId
+
+      if (!id) {
+        return
+      }
+
+      if (this.sharedMix && this.sharedMix.id === id) {
+        return
+      }
+
+      this.mixLoadError = ''
+
+      try {
+        const mix = await getMix(id)
+
+        if (!mix) {
+          this.sharedMix = null
+          this.mixLoadError = 'ミックスが見つかりませんでした。通常のミキサーとして使えます。'
+          if (this.loadedAll) {
+            this.restoreLastPreset()
+          }
+          return
+        }
+
+        this.sharedMix = mix
+        this.mixTitleInput = mix.title === DEFAULT_TITLE ? '' : mix.title
+
+        if (this.loadedAll) {
+          this.applySharedMix(mix)
+        }
+      } catch (error) {
+        this.sharedMix = null
+        this.mixLoadError = 'ミックスを読み込めませんでした。通常のミキサーとして使えます。'
+        if (this.loadedAll) {
+          this.restoreLastPreset()
+        }
+      }
+    },
+    mixShareUrl (id) {
+      return `${window.location.origin}/mix/${id}`
+    },
+    async copyUrl (url) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url)
+        return
+      }
+
+      const input = document.createElement('input')
+      input.value = url
+      input.setAttribute('readonly', '')
+      input.style.position = 'absolute'
+      input.style.left = '-9999px'
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      document.body.removeChild(input)
+    },
+    async shareMix () {
+      this.shareError = ''
+      this.shareNotice = ''
+      this.sharing = true
+
+      try {
+        const payload = snapshotMix(this.$refs.instruments, this.mixTitleInput)
+        const id = await createMix(payload)
+        const url = this.mixShareUrl(id)
+
+        try {
+          await this.copyUrl(url)
+          this.shareNotice = `共有URLをコピーしました: ${url}`
+        } catch (error) {
+          this.shareNotice = `共有URL: ${url}`
+        }
+
+        this.sharedMix = {
+          id,
+          ...payload
+        }
+        this.mixLoadError = ''
+
+        if (process.client && window.history && window.history.pushState) {
+          window.history.pushState({}, '', `/mix/${id}`)
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error)
+        this.shareError = '共有に失敗しました。時間をおいてもう一度お試しください。'
+      } finally {
+        this.sharing = false
       }
     },
     onResize () {
@@ -206,6 +397,69 @@ export default {
 
 .preset-button:hover {
   border-color: #666666;
+}
+
+.preset-button:focus-visible,
+.share-input:focus-visible {
+  outline: 2px solid #c7c7c7;
+  outline-offset: 2px;
+}
+
+.preset-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.share-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.share-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: min(100%, 220px);
+  flex: 1 1 180px;
+}
+
+.share-label {
+  color: #888888;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.share-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #444444;
+  border-radius: 999px;
+  background: rgba(19, 20, 25, 0.8);
+  color: #c7c7c7;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+.share-button {
+  min-height: 40px;
+}
+
+.share-status {
+  min-height: 1.5em;
+  margin-bottom: 16px;
+  color: #888888;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.share-status-error {
+  color: #ff8a8a;
 }
 
 .error-banner {

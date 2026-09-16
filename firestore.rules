@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /mixes/{mixId} {
+      allow read: if true;
+      allow create: if isValidMix();
+      allow update, delete: if false;
+    }
+
+    function isValidMix() {
+      return request.resource.data.keys().hasAll(['schemaVersion', 'title', 'tracks', 'createdAt'])
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.tracks is list
+        && request.resource.data.tracks.size() == 8
+        && request.resource.data.createdAt is timestamp;
+    }
+  }
+}

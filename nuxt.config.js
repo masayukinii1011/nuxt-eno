@@ -46,6 +46,18 @@ export default {
       background_color: '#131419'
     }
   },
+  router: {
+    extendRoutes (routes, resolve) {
+      routes.push({
+        name: 'mix-id',
+        path: '/mix/:id',
+        component: resolve(__dirname, 'pages/index.vue')
+      })
+    }
+  },
+  generate: {
+    fallback: true
+  },
   build: {
     extend (config) {
       config.module.rules.push({

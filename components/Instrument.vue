@@ -91,22 +91,22 @@ export default {
     this.initPlayer()
   },
   beforeDestroy () {
-    if (this.player) {
-      this.player.stop()
-      this.player.dispose()
-    }
-    if (this.filter) {
-      this.filter.dispose()
-    }
-    if (this.vibrato) {
-      this.vibrato.dispose()
-    }
-    if (this.tremolo) {
-      this.tremolo.dispose()
-    }
-    if (this.panner) {
-      this.panner.dispose()
-    }
+    ;[this.player, this.filter, this.vibrato, this.tremolo, this.panner].forEach((node) => {
+      if (!node) {
+        return
+      }
+
+      try {
+        if (typeof node.stop === 'function') {
+          node.stop()
+        }
+        if (typeof node.dispose === 'function') {
+          node.dispose()
+        }
+      } catch (error) {
+        // Tone nodes may already be disposed when the page remounts.
+      }
+    })
   },
   methods: {
     initAudioChain () {
@@ -214,6 +214,17 @@ export default {
           this.setAmount(key, presetValues[key])
         }
       })
+    },
+
+    getValues () {
+      return {
+        id: this.trackId,
+        volume: this.values.volume,
+        filter: this.values.filter,
+        vibrato: this.values.vibrato,
+        tremolo: this.values.tremolo,
+        panner: this.values.panner
+      }
     }
   }
 }
