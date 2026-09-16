@@ -19,7 +19,7 @@
     "@createjs/tweenjs": "^2.0.0-beta.4",
     "@nuxtjs/dotenv": "^1.4.1",
     "@nuxtjs/pwa": "^3.3.5",
-    "firebase": "^10.14.1",
+    "firebase": "^12.17.1",
     "nuxt": "^2.18.1",
     "tone": "^14.8.49"
   },
