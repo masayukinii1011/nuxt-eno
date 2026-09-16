@@ -14,6 +14,10 @@ export default {
     canvasHeight: {
       type: [Number, String],
       default: 0
+    },
+    particleHue: {
+      type: Number,
+      default: 145
     }
   },
   data () {
@@ -30,6 +34,9 @@ export default {
     },
     canvasHeight () {
       this.resizeStage()
+    },
+    particleHue () {
+      this.count = 0
     }
   },
   mounted () {
@@ -66,8 +73,10 @@ export default {
       this.count += 1
       const particle = new Shape()
 
+      const hue = (this.particleHue + this.count * 0.6) % 360
+
       particle.graphics
-        .beginFill(Graphics.getHSL(this.count, 50, 50, Math.random()))
+        .beginFill(Graphics.getHSL(hue, 42, 48, Math.random() * 0.85 + 0.15))
         .drawCircle(0, 0, 10 * Math.random())
       particle.compositeOperation = 'lighter'
       particle.x = this.stage.canvas.width * Math.random()

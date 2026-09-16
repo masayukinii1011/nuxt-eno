@@ -1,0 +1,102 @@
+[
+  {
+    "id": "charcoal",
+    "label": "Charcoal",
+    "description": "落ち着いたダークグレー（初期テーマ）",
+    "tokens": {
+      "bg": "#131419",
+      "surface": "rgba(19, 20, 25, 0.8)",
+      "text": "#c7c7c7",
+      "muted": "#888888",
+      "label": "#666666",
+      "heading": "#767676",
+      "border": "#444444",
+      "borderHover": "#666666",
+      "accent": "#6b8cae",
+      "focus": "#c7c7c7",
+      "error": "#ff8a8a",
+      "errorBg": "rgba(255, 138, 138, 0.12)",
+      "particleHue": 145
+    }
+  },
+  {
+    "id": "deep-ocean",
+    "label": "Deep Ocean",
+    "description": "深い海の紺とティール",
+    "tokens": {
+      "bg": "#0a1018",
+      "surface": "rgba(12, 22, 34, 0.85)",
+      "text": "#c5d4de",
+      "muted": "#7a909e",
+      "label": "#5f7585",
+      "heading": "#8aa3b3",
+      "border": "#2a3d4d",
+      "borderHover": "#3d5566",
+      "accent": "#3d8b8b",
+      "focus": "#a8c4d4",
+      "error": "#e89292",
+      "errorBg": "rgba(232, 146, 146, 0.12)",
+      "particleHue": 195
+    }
+  },
+  {
+    "id": "forest-night",
+    "label": "Forest Night",
+    "description": "森の夜の深緑",
+    "tokens": {
+      "bg": "#0e1210",
+      "surface": "rgba(16, 24, 20, 0.85)",
+      "text": "#c8d4cc",
+      "muted": "#849488",
+      "label": "#6a7a6e",
+      "heading": "#8a9a8e",
+      "border": "#334038",
+      "borderHover": "#4a5a50",
+      "accent": "#5a8f6a",
+      "focus": "#b8d4c0",
+      "error": "#e89a8a",
+      "errorBg": "rgba(232, 154, 138, 0.12)",
+      "particleHue": 125
+    }
+  },
+  {
+    "id": "warm-dusk",
+    "label": "Warm Dusk",
+    "description": "夕暮れのワインレッドとブラウン",
+    "tokens": {
+      "bg": "#141012",
+      "surface": "rgba(26, 18, 22, 0.85)",
+      "text": "#d4c8c8",
+      "muted": "#9a8888",
+      "label": "#7a6868",
+      "heading": "#a89090",
+      "border": "#4a3838",
+      "borderHover": "#665050",
+      "accent": "#a86a6a",
+      "focus": "#d4b8b8",
+      "error": "#ff9090",
+      "errorBg": "rgba(255, 144, 144, 0.12)",
+      "particleHue": 350
+    }
+  },
+  {
+    "id": "mist-gray",
+    "label": "Mist Gray",
+    "description": "霧のような青みグレー",
+    "tokens": {
+      "bg": "#111318",
+      "surface": "rgba(20, 22, 28, 0.85)",
+      "text": "#c4c8d0",
+      "muted": "#888c96",
+      "label": "#6e727a",
+      "heading": "#9098a4",
+      "border": "#3a3e48",
+      "borderHover": "#525862",
+      "accent": "#7a8aa8",
+      "focus": "#c0c8d8",
+      "error": "#e89898",
+      "errorBg": "rgba(232, 152, 152, 0.12)",
+      "particleHue": 220
+    }
+  }
+]

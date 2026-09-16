@@ -245,7 +245,7 @@ export default {
 }
 
 .instrument-title {
-  color: #767676;
+  color: var(--eno-heading);
   font-size: 24px;
   margin-bottom: 12px;
 }
@@ -266,7 +266,7 @@ export default {
 
 .input-label {
   display: inline-block;
-  color: #666666;
+  color: var(--eno-label);
   font-size: 14px;
 }
 
@@ -274,11 +274,12 @@ export default {
   display: inline-block;
   width: 80%;
   cursor: pointer;
+  accent-color: var(--eno-accent);
 }
 
 .load-error {
   margin-top: 12px;
-  color: #ff8a8a;
+  color: var(--eno-error);
   font-size: 13px;
   font-weight: normal;
 }

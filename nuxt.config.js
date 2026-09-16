@@ -25,7 +25,9 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
-  css: [],
+  css: [
+    '@/assets/theme-default.css'
+  ],
   plugins: [
     '@/plugins/firebase',
     '@/plugins/tone.client.js'

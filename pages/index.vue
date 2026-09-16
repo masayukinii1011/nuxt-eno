@@ -1,6 +1,10 @@
 <template>
   <div ref="wrap" class="wrap">
-    <Canvas :canvas-width="wrapWidth" :canvas-height="wrapHeight" />
+    <Canvas
+      :canvas-width="wrapWidth"
+      :canvas-height="wrapHeight"
+      :particle-hue="particleHue"
+    />
     <div ref="container" class="container">
       <div v-if="clicked" class="clicked-container">
         <transition name="loaded">
@@ -22,6 +26,28 @@
               >
                 {{ preset.label }}
               </button>
+            </div>
+            <div class="skins">
+              <span class="skins-label">Color</span>
+              <div class="skins-buttons">
+                <button
+                  v-for="skin in skins"
+                  :key="skin.id"
+                  type="button"
+                  class="skin-button"
+                  :class="{ 'skin-button-active': selectedSkinId === skin.id }"
+                  :title="skin.description"
+                  :aria-pressed="selectedSkinId === skin.id"
+                  @click="selectSkin(skin.id)"
+                >
+                  <span
+                    class="skin-swatch"
+                    :style="{ backgroundColor: skin.tokens.accent }"
+                    aria-hidden="true"
+                  />
+                  {{ skin.label }}
+                </button>
+              </div>
             </div>
             <form
               class="share-form"
@@ -106,6 +132,7 @@ import Instrument from '~/components/Instrument.vue'
 import Canvas from '~/components/Canvas.vue'
 import tracks from '~/data/tracks.json'
 import presets from '~/data/presets.json'
+import skins from '~/data/skins.json'
 import {
   TITLE_MAX_LENGTH,
   DEFAULT_TITLE,
@@ -113,6 +140,12 @@ import {
   createMix,
   getMix
 } from '~/lib/mix'
+import {
+  DEFAULT_SKIN_ID,
+  SKIN_STORAGE_KEY,
+  applySkin,
+  getSkin
+} from '~/lib/theme'
 
 const PRESET_STORAGE_KEY = 'nuxt-eno:last-preset'
 
@@ -125,6 +158,8 @@ export default {
     return {
       tracks,
       presets,
+      skins,
+      selectedSkinId: DEFAULT_SKIN_ID,
       clicked: false,
       loadedAll: false,
       loadedCount: 0,
@@ -164,6 +199,10 @@ export default {
         return error.code === 'storage/quota-exceeded' ||
           (error.message && error.message.includes('402'))
       })
+    },
+    particleHue () {
+      const skin = getSkin(this.selectedSkinId)
+      return skin.tokens.particleHue
     }
   },
   watch: {
@@ -175,6 +214,9 @@ export default {
     }
   },
   mounted () {
+    if (!this.mixId) {
+      this.restoreLastSkin()
+    }
     this.onResize()
     window.addEventListener('resize', this.onResize)
   },
@@ -235,6 +277,22 @@ export default {
       }
 
       this.restoreLastPreset()
+      this.restoreLastSkin()
+    },
+    selectSkin (skinId) {
+      this.selectedSkinId = applySkin(skinId)
+
+      if (process.client) {
+        localStorage.setItem(SKIN_STORAGE_KEY, this.selectedSkinId)
+      }
+    },
+    restoreLastSkin () {
+      if (!process.client) {
+        return
+      }
+
+      const lastSkinId = localStorage.getItem(SKIN_STORAGE_KEY)
+      this.selectedSkinId = applySkin(lastSkinId || DEFAULT_SKIN_ID)
     },
     applySharedMix (mix) {
       const instrumentRefs = this.$refs.instruments || []
@@ -245,6 +303,10 @@ export default {
           instrument.applyPreset(track)
         }
       })
+
+      if (mix.skinId) {
+        this.selectedSkinId = applySkin(mix.skinId)
+      }
     },
     async loadSharedMix () {
       const id = this.mixId
@@ -273,6 +335,7 @@ export default {
 
         this.sharedMix = mix
         this.mixTitleInput = mix.title === DEFAULT_TITLE ? '' : mix.title
+        this.selectedSkinId = applySkin(mix.skinId)
 
         if (this.loadedAll) {
           this.applySharedMix(mix)
@@ -310,7 +373,11 @@ export default {
       this.sharing = true
 
       try {
-        const payload = snapshotMix(this.$refs.instruments, this.mixTitleInput)
+        const payload = snapshotMix(
+          this.$refs.instruments,
+          this.mixTitleInput,
+          this.selectedSkinId
+        )
         const id = await createMix(payload)
         const url = this.mixShareUrl(id)
 
@@ -372,7 +439,7 @@ export default {
 
 .subtitle {
   margin-bottom: 20px;
-  color: #888888;
+  color: var(--eno-muted);
   font-size: 15px;
   font-weight: normal;
   line-height: 1.5;
@@ -382,26 +449,27 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .preset-button {
   padding: 8px 14px;
-  border: 1px solid #444444;
+  border: 1px solid var(--eno-border);
   border-radius: 999px;
-  background: rgba(19, 20, 25, 0.8);
-  color: #c7c7c7;
+  background: var(--eno-surface);
+  color: var(--eno-text);
   font-size: 13px;
   cursor: pointer;
 }
 
 .preset-button:hover {
-  border-color: #666666;
+  border-color: var(--eno-border-hover);
 }
 
 .preset-button:focus-visible,
-.share-input:focus-visible {
-  outline: 2px solid #c7c7c7;
+.share-input:focus-visible,
+.skin-button:focus-visible {
+  outline: 2px solid var(--eno-focus);
   outline-offset: 2px;
 }
 
@@ -426,8 +494,54 @@ export default {
   flex: 1 1 180px;
 }
 
+.skins {
+  margin-bottom: 20px;
+}
+
+.skins-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--eno-muted);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.skins-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skin-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--eno-border);
+  border-radius: 999px;
+  background: var(--eno-surface);
+  color: var(--eno-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.skin-button:hover {
+  border-color: var(--eno-border-hover);
+}
+
+.skin-button-active {
+  border-color: var(--eno-accent);
+}
+
+.skin-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
 .share-label {
-  color: #888888;
+  color: var(--eno-muted);
   font-size: 13px;
   font-weight: normal;
 }
@@ -436,10 +550,10 @@ export default {
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid #444444;
+  border: 1px solid var(--eno-border);
   border-radius: 999px;
-  background: rgba(19, 20, 25, 0.8);
-  color: #c7c7c7;
+  background: var(--eno-surface);
+  color: var(--eno-text);
   font-size: 1rem;
   font-weight: normal;
 }
@@ -451,7 +565,7 @@ export default {
 .share-status {
   min-height: 1.5em;
   margin-bottom: 16px;
-  color: #888888;
+  color: var(--eno-muted);
   font-size: 14px;
   font-weight: normal;
   line-height: 1.5;
@@ -459,15 +573,15 @@ export default {
 }
 
 .share-status-error {
-  color: #ff8a8a;
+  color: var(--eno-error);
 }
 
 .error-banner {
   margin-bottom: 16px;
   padding: 10px 14px;
   border-radius: 8px;
-  background: rgba(255, 138, 138, 0.12);
-  color: #ff8a8a;
+  background: var(--eno-error-bg);
+  color: var(--eno-error);
   font-size: 14px;
   font-weight: normal;
 }
@@ -527,7 +641,7 @@ export default {
 .first-view-description {
   margin-top: 16px;
   max-width: 320px;
-  color: #888888;
+  color: var(--eno-muted);
   font-size: 15px;
   font-weight: normal;
   line-height: 1.6;

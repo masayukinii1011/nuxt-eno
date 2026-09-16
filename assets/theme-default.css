@@ -1,0 +1,15 @@
+:root {
+  --eno-bg: #131419;
+  --eno-surface: rgba(19, 20, 25, 0.8);
+  --eno-text: #c7c7c7;
+  --eno-muted: #888888;
+  --eno-label: #666666;
+  --eno-heading: #767676;
+  --eno-border: #444444;
+  --eno-border-hover: #666666;
+  --eno-accent: #6b8cae;
+  --eno-focus: #c7c7c7;
+  --eno-error: #ff8a8a;
+  --eno-error-bg: rgba(255, 138, 138, 0.12);
+  --eno-particle-hue: 145;
+}

@@ -8,11 +8,14 @@ service cloud.firestore {
     }
 
     function isValidMix() {
-      return request.resource.data.keys().hasAll(['schemaVersion', 'title', 'tracks', 'createdAt'])
+      return request.resource.data.keys().hasAll(['schemaVersion', 'title', 'skinId', 'tracks', 'createdAt'])
         && request.resource.data.schemaVersion == 1
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0
         && request.resource.data.title.size() <= 80
+        && request.resource.data.skinId is string
+        && request.resource.data.skinId.size() > 0
+        && request.resource.data.skinId.size() <= 32
         && request.resource.data.tracks is list
         && request.resource.data.tracks.size() == 8
         && request.resource.data.createdAt is timestamp;

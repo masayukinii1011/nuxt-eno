@@ -25,9 +25,9 @@ html {
 }
 
 body {
-  background: #131419;
+  background: var(--eno-bg);
   font-weight: bold;
-  color: #c7c7c7;
+  color: var(--eno-text);
   line-height: 1;
 }
 </style>

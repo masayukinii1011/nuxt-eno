@@ -9,9 +9,10 @@
 1. 画面をクリックして音声を開始する
 2. 8つのレイヤーそれぞれのスライダーで音量・エフェクトを調整する
 3. 上部のプリセットボタンでミックス全体を切り替える（最後に選んだプリセットはブラウザに保存されます）
-4. タイトル（任意）を入れて Share を押すと、同じミックスを再生できる URL（`/mix/{id}`）が発行されます
+4. Color でアンビエント向けのカラースキンを選べます（Share に含まれます）
+5. タイトル（任意）を入れて Share を押すと、同じミックスを再生できる URL（`/mix/{id}`）が発行されます
 
-共有 URL を開いた相手も、クリック後に同じ 8 レイヤー・同じエフェクト状態で再生できます。ミックスは保存時点のスナップショットで、あとから編集はできません。開き直して触って Share すると、新しい URL が発行されます。
+共有 URL を開いた相手も、クリック後に同じ 8 レイヤー・同じエフェクト状態・同じカラースキンで再生できます。ミックスは保存時点のスナップショットで、あとから編集はできません。開き直して触って Share すると、新しい URL が発行されます。
 
 音楽の知識がなくても、聴きながら・触りながら環境音楽を楽しめます。
 
@@ -112,7 +113,7 @@ firebase deploy --only hosting
 
 ```
 components/     Instrument.vue, Canvas.vue
-data/           tracks.json, presets.json
+data/           tracks.json, presets.json, skins.json
 lib/            mix.js（スナップショット・Firestore）
 pages/          index.vue（メイン画面と `/mix/:id`）
 plugins/        firebase.js, tone.client.js
