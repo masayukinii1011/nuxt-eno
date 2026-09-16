@@ -233,7 +233,6 @@ export default {
 <style scoped>
 .instrument-container {
   width: 100%;
-  min-height: 292px;
   padding: 20px;
   border-radius: 16px;
   box-shadow: -4px -4px 8px rgba(255, 255, 255, 0.05),
@@ -247,21 +246,18 @@ export default {
 .instrument-title {
   color: var(--eno-heading);
   font-size: 24px;
-  margin-bottom: 12px;
 }
 
 .input-container {
   display: flex;
   flex-flow: column;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
 .input-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .input-label {

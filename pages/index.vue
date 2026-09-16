@@ -16,16 +16,19 @@
               8つのレイヤーを組み合わせて、自分だけの環境音楽を作りましょう。
             </p>
             <div class="presets">
-              <button
-                v-for="preset in presets"
-                :key="preset.id"
-                type="button"
-                class="preset-button"
-                :title="preset.description"
-                @click="applyPreset(preset)"
-              >
-                {{ preset.label }}
-              </button>
+              <span class="presets-label">Preset</span>
+              <div class="presets-buttons">
+                <button
+                  v-for="preset in presets"
+                  :key="preset.id"
+                  type="button"
+                  class="preset-button"
+                  :title="preset.description"
+                  @click="applyPreset(preset)"
+                >
+                  {{ preset.label }}
+                </button>
+              </div>
             </div>
             <div class="skins">
               <span class="skins-label">Color</span>
@@ -49,43 +52,84 @@
                 </button>
               </div>
             </div>
-            <form
-              class="share-form"
-              @submit.prevent="shareMix"
+            <section
+              class="share"
+              aria-labelledby="share-heading"
             >
-              <div class="share-field">
+              <h2
+                id="share-heading"
+                class="share-heading"
+              >
+                今の設定を反映した Mix URL を作成
+              </h2>
+              <form
+                class="share-form"
+                @submit.prevent="shareMix"
+              >
+                <div class="share-field">
+                  <label
+                    class="share-label"
+                    for="mix-title"
+                  >Mix 名（任意）</label>
+                  <input
+                    id="mix-title"
+                    v-model="mixTitleInput"
+                    class="share-input"
+                    name="title"
+                    type="text"
+                    :maxlength="titleMaxLength"
+                    autocomplete="off"
+                    enterkeyhint="done"
+                    placeholder="リンクに表示されます"
+                    :aria-describedby="shareStatusMessage ? 'share-status' : null"
+                  >
+                </div>
+                <button
+                  class="preset-button share-button"
+                  type="submit"
+                  :disabled="sharing"
+                >
+                  {{ sharing ? 'Creating...' : 'Create URL' }}
+                </button>
+              </form>
+              <p
+                v-if="shareStatusMessage"
+                id="share-status"
+                class="share-status"
+                :class="{ 'share-status-error': Boolean(shareError || mixLoadError) }"
+                aria-live="polite"
+              >
+                {{ shareStatusMessage }}
+              </p>
+              <div
+                v-if="shareUrl"
+                class="share-result"
+              >
                 <label
                   class="share-label"
-                  for="mix-title"
-                >タイトル（任意）</label>
-                <input
-                  id="mix-title"
-                  v-model="mixTitleInput"
-                  class="share-input"
-                  name="title"
-                  type="text"
-                  :maxlength="titleMaxLength"
-                  autocomplete="off"
-                  enterkeyhint="done"
-                  aria-describedby="share-status"
-                >
+                  for="share-url"
+                >Mix URL</label>
+                <div class="share-url-row">
+                  <input
+                    id="share-url"
+                    class="share-input share-url-input"
+                    name="mix-url"
+                    type="url"
+                    readonly
+                    autocomplete="off"
+                    :value="shareUrl"
+                    @focus="$event.target.select()"
+                  >
+                  <button
+                    class="preset-button share-button"
+                    type="button"
+                    @click="copyShareUrl"
+                  >
+                    Copy
+                  </button>
+                </div>
               </div>
-              <button
-                class="preset-button share-button"
-                type="submit"
-                :disabled="sharing"
-              >
-                {{ sharing ? 'Sharing...' : 'Share' }}
-              </button>
-            </form>
-            <p
-              id="share-status"
-              class="share-status"
-              :class="{ 'share-status-error': Boolean(shareError || mixLoadError) }"
-              aria-live="polite"
-            >
-              {{ mixLoadError || shareError || shareNotice }}
-            </p>
+            </section>
             <div v-if="loadErrors.length" class="error-banner">
               <p>一部の音源を読み込めませんでした（{{ loadErrors.length }}件）</p>
               <p v-if="isStorageQuotaError" class="error-banner-detail">
@@ -148,6 +192,14 @@ import {
 } from '~/lib/theme'
 
 const PRESET_STORAGE_KEY = 'nuxt-eno:last-preset'
+const PRESET_STORAGE_SCHEMA_KEY = 'nuxt-eno:last-preset-schema'
+const PRESET_STORAGE_SCHEMA = 2
+const LEGACY_PRESET_ID_ALIASES = {
+  reset: 'quiet',
+  'soft-ambient': 'dreamscape',
+  dreamscape: 'soft-vibe',
+  minimal: 'bright-air'
+}
 
 export default {
   components: {
@@ -171,6 +223,7 @@ export default {
       sharing: false,
       shareNotice: '',
       shareError: '',
+      shareUrl: '',
       mixLoadError: '',
       sharedMix: null,
       mixLoadPromise: null
@@ -185,11 +238,11 @@ export default {
         return this.sharedMix.title
       }
 
-      return 'Mix Your Own Vibes'
+      return 'Ambient Music Mixer'
     },
     firstViewDescription () {
       if (this.mixId) {
-        return 'クリックで共有されたミックスを再生します'
+        return '共有されたミックスです。クリックして再生'
       }
 
       return 'クリックで音声を開始し、8つのレイヤーをミックスできます'
@@ -203,6 +256,9 @@ export default {
     particleHue () {
       const skin = getSkin(this.selectedSkinId)
       return skin.tokens.particleHue
+    },
+    shareStatusMessage () {
+      return this.mixLoadError || this.shareError || this.shareNotice
     }
   },
   watch: {
@@ -249,18 +305,45 @@ export default {
 
       if (process.client) {
         localStorage.setItem(PRESET_STORAGE_KEY, preset.id)
+        localStorage.setItem(
+          PRESET_STORAGE_SCHEMA_KEY,
+          String(PRESET_STORAGE_SCHEMA)
+        )
       }
+    },
+    resolveStoredPresetId (storedPresetId) {
+      const schema = Number(localStorage.getItem(PRESET_STORAGE_SCHEMA_KEY) || 0)
+      const legacyId = LEGACY_PRESET_ID_ALIASES[storedPresetId]
+
+      if (
+        schema < PRESET_STORAGE_SCHEMA &&
+        legacyId &&
+        this.presets.some(item => item.id === legacyId)
+      ) {
+        return legacyId
+      }
+
+      if (this.presets.some(item => item.id === storedPresetId)) {
+        return storedPresetId
+      }
+
+      if (legacyId && this.presets.some(item => item.id === legacyId)) {
+        return legacyId
+      }
+
+      return storedPresetId
     },
     restoreLastPreset () {
       if (!process.client) {
         return
       }
 
-      const lastPresetId = localStorage.getItem(PRESET_STORAGE_KEY)
-      if (!lastPresetId) {
+      const storedPresetId = localStorage.getItem(PRESET_STORAGE_KEY)
+      if (!storedPresetId) {
         return
       }
 
+      const lastPresetId = this.resolveStoredPresetId(storedPresetId)
       const preset = this.presets.find(item => item.id === lastPresetId)
       if (preset) {
         this.applyPreset(preset)
@@ -326,6 +409,7 @@ export default {
 
         if (!mix) {
           this.sharedMix = null
+          this.shareUrl = ''
           this.mixLoadError = 'ミックスが見つかりませんでした。通常のミキサーとして使えます。'
           if (this.loadedAll) {
             this.restoreLastPreset()
@@ -334,6 +418,7 @@ export default {
         }
 
         this.sharedMix = mix
+        this.shareUrl = this.mixShareUrl(id)
         this.mixTitleInput = mix.title === DEFAULT_TITLE ? '' : mix.title
         this.selectedSkinId = applySkin(mix.skinId)
 
@@ -342,6 +427,7 @@ export default {
         }
       } catch (error) {
         this.sharedMix = null
+        this.shareUrl = ''
         this.mixLoadError = 'ミックスを読み込めませんでした。通常のミキサーとして使えます。'
         if (this.loadedAll) {
           this.restoreLastPreset()
@@ -350,6 +436,32 @@ export default {
     },
     mixShareUrl (id) {
       return `${window.location.origin}/mix/${id}`
+    },
+    shareSuccessNotice (hadLink, copied) {
+      if (hadLink) {
+        return copied
+          ? '新しいリンクができました。コピーしました。'
+          : '新しいリンクができました。下の URL をコピーしてください。'
+      }
+
+      return copied
+        ? 'リンクをコピーしました。この URL を開くと同じミックスが再生されます'
+        : 'リンクを作成しました。下の URL をコピーしてください。'
+    },
+    async copyShareUrl () {
+      if (!this.shareUrl) {
+        return
+      }
+
+      this.shareError = ''
+
+      try {
+        await this.copyUrl(this.shareUrl)
+        this.shareNotice = 'リンクをコピーしました。この URL を開くと同じミックスが再生されます'
+      } catch (error) {
+        this.shareNotice = ''
+        this.shareError = 'コピーできませんでした。URL を選択してコピーしてください。'
+      }
     },
     async copyUrl (url) {
       if (navigator.clipboard && window.isSecureContext) {
@@ -371,6 +483,7 @@ export default {
       this.shareError = ''
       this.shareNotice = ''
       this.sharing = true
+      const hadLink = Boolean(this.shareUrl)
 
       try {
         const payload = snapshotMix(
@@ -380,14 +493,18 @@ export default {
         )
         const id = await createMix(payload)
         const url = this.mixShareUrl(id)
+        let copied = false
+
+        this.shareUrl = url
 
         try {
           await this.copyUrl(url)
-          this.shareNotice = `共有URLをコピーしました: ${url}`
+          copied = true
         } catch (error) {
-          this.shareNotice = `共有URL: ${url}`
+          copied = false
         }
 
+        this.shareNotice = this.shareSuccessNotice(hadLink, copied)
         this.sharedMix = {
           id,
           ...payload
@@ -400,7 +517,7 @@ export default {
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error)
-        this.shareError = '共有に失敗しました。時間をおいてもう一度お試しください。'
+        this.shareError = 'リンクを作成できませんでした。時間をおいてもう一度お試しください。'
       } finally {
         this.sharing = false
       }
@@ -446,10 +563,21 @@ export default {
 }
 
 .presets {
+  margin-bottom: 16px;
+}
+
+.presets-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--eno-muted);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.presets-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 16px;
 }
 
 .preset-button {
@@ -468,6 +596,7 @@ export default {
 
 .preset-button:focus-visible,
 .share-input:focus-visible,
+.share-url-input:focus-visible,
 .skin-button:focus-visible {
   outline: 2px solid var(--eno-focus);
   outline-offset: 2px;
@@ -476,6 +605,17 @@ export default {
 .preset-button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.share {
+  margin-bottom: 20px;
+}
+
+.share-heading {
+  margin: 0 0 16px;
+  color: var(--eno-text);
+  font-size: 15px;
+  font-weight: normal;
 }
 
 .share-form {
@@ -563,13 +703,40 @@ export default {
 }
 
 .share-status {
-  min-height: 1.5em;
-  margin-bottom: 16px;
+  margin: 8px 0 0;
   color: var(--eno-muted);
   font-size: 14px;
   font-weight: normal;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+.share-result {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--eno-border);
+  border-radius: 8px;
+  background: var(--eno-surface);
+}
+
+.share-result .share-label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.share-url-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.share-url-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: text;
 }
 
 .share-status-error {
@@ -605,14 +772,13 @@ export default {
 
 .instruments {
   display: grid;
-  grid-template-rows: repeat(4, 1fr);
   grid-template-columns: 1fr 1fr;
-  grid-gap: 32px;
+  gap: 32px;
+  align-items: start;
 }
 
 .instrument {
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
 
 .loading-text {

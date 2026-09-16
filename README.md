@@ -2,24 +2,24 @@
 
 8つのレイヤーをリアルタイムにミックスして、自分だけの環境音楽（アンビエント）を作れる Web アプリです。作ったミックスは URL で共有できます。
 
-**本番:** https://nii-nuxt-eno.web.app/
+**本番:** [nii-nuxt-eno.web.app](https://nii-nuxt-eno.web.app/)
 
 ## 使い方
 
 1. 画面をクリックして音声を開始する
 2. 8つのレイヤーそれぞれのスライダーで音量・エフェクトを調整する
 3. 上部のプリセットボタンでミックス全体を切り替える（最後に選んだプリセットはブラウザに保存されます）
-4. Color でアンビエント向けのカラースキンを選べます（Share に含まれます）
-5. タイトル（任意）を入れて Share を押すと、同じミックスを再生できる URL（`/mix/{id}`）が発行されます
+4. Color でアンビエント向けのカラースキンを選べます（リンクに含まれます）
+5. Mix 名（任意）を入れて「Create URL」を押すと、いまの設定で再生できる Mix URL（`/mix/{id}`）が発行され、画面に表示されます
 
-共有 URL を開いた相手も、クリック後に同じ 8 レイヤー・同じエフェクト状態・同じカラースキンで再生できます。ミックスは保存時点のスナップショットで、あとから編集はできません。開き直して触って Share すると、新しい URL が発行されます。
+その URL を開いた相手も、クリック後に同じ 8 レイヤー・同じエフェクト状態・同じカラースキンで再生できます。URL は保存時点のスナップショットで、あとからスライダーを動かしても変わりません。もう一度「Create URL」すると、新しい URL が発行されます。
 
 音楽の知識がなくても、聴きながら・触りながら環境音楽を楽しめます。
 
 ## エフェクト
 
 | 名前 | 説明 |
-|------|------|
+| --- | --- |
 | Volume | 音量を操作します |
 | Filter | 高音を抑えます |
 | Tremolo | 音量を周期的に変化させます |
@@ -29,12 +29,13 @@
 ## プリセット
 
 | 名前 | 説明 |
-|------|------|
-| Reset | すべてのレイヤーを初期状態に戻す |
-| Soft Ambient | 穏やかで柔らかいミックス |
+| --- | --- |
+| Quiet | 静かな土台に戻す。すべてのレイヤーを初期状態にする |
+| Bright Air | 明るく軽やかに広がる、開放的なアンビエント |
+| Dreamscape | やわらかく広がる、穏やかなアンビエント |
 | Deep Focus | 集中向けの落ち着いた低域中心ミックス |
-| Dreamscape | 浮遊感のある広がりのあるミックス |
-| Minimal | 控えめな音量設定のミックス |
+| Soft Vibe | 浮遊感と揺らぎのある、ふわっとしたミックス |
+| Slow Pulse | ゆっくりうねる、呼吸のようなリズム |
 
 ## 環境音楽について
 
@@ -43,84 +44,65 @@
 ## 技術スタック
 
 | 用途 | 技術 |
-|------|------|
-| フロントエンド | Nuxt.js 2 |
+| --- | --- |
+| フロントエンド | Nuxt.js 2（SPA / static） |
 | 音声処理 | Tone.js |
 | 背景アニメーション | CreateJS |
 | ホスティング | Firebase Hosting |
-| ミックス保存 | Cloud Firestore（データベース `mixes` の `mixes/{id}`） |
+| ミックス保存 | Cloud Firestore（DB `mixes` / `mixes/{id}`） |
 | 音源配信 | Firebase Hosting（`static/sounds/c/`） |
 
-## 開発
+## アーキテクチャ
 
-### 必要環境
+### ランタイム
 
-- Node.js 18 以上 22 未満（`.nvmrc` は 20）
-- npm
-- Firebase CLI（デプロイ時）
+```mermaid
+flowchart TB
+  Browser["Browser"]
+  Browser --> Hosting["Firebase Hosting SPA"]
+  Browser -->|"MP3 loop"| Sounds["/sounds/c/*.mp3"]
+  Browser -->|"Share get/create"| FS["Firestore DB mixes"]
+```
 
-### セットアップ
+### 共有
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant A as App
+  participant F as Firestore
+  U->>A: スライダー調整
+  U->>A: Create URL
+  A->>F: createMix snapshot
+  F-->>A: document id
+  A->>U: /mix/id
+  participant G as Guest
+  G->>A: /mix/id を開く
+  A->>F: getMix
+  A->>G: 同設定で再生
+```
+
+`ssr: false` + 静的 generate。Mix スキーマと不変条件は [docs/domain.md](docs/domain.md)。
+
+## セットアップ
 
 ```bash
-git clone https://github.com/masayukinii1011/nuxt-eno.git
-cd nuxt-eno
 npm install
 cp .env.example .env
+npm run dev
 ```
 
-`.env` には [Firebase コンソール](https://console.firebase.google.com/project/nii-nuxt-eno/settings/general) のプロジェクト設定値を設定します。
+環境変数・デプロイ・音源取得は [docs/runbook.md](docs/runbook.md)。
 
-### コマンド
+## ドキュメント
 
-```bash
-npm run dev              # 開発サーバー (http://localhost:3000)
-npm run generate         # 静的サイト生成 (dist/)
-npm run lint             # ESLint
-npm run download-sounds  # Storage から音源を取得（後述）
-```
-
-## デプロイ
-
-既存プロジェクトの `(default)` は Datastore モードのため、ミックスは Native モードのデータベース `mixes`（asia-northeast1）に保存します。ルールは認証なしの作成と公開読み取りを許可しています。一覧・いいね・認証はまだないため、スパム対策は面接後の課題です。
-
-```bash
-npm run generate
-firebase deploy --only firestore,hosting
-```
-
-`master` への push 時は GitHub Actions から Hosting へ自動デプロイされます。Firestore ルールは上記コマンドで別途デプロイしてください。以下の Secrets が必要です。
-
-- `FIREBASE_API_KEY` / `FIREBASE_AUTH_DOMAIN` / `FIREBASE_DATABASE_URL`
-- `FIREBASE_PROJECT_ID` / `FIREBASE_STORAGE_BUCKET`
-- `FIREBASE_MESSAGING_SENDER_ID` / `FIREBASE_APP_ID`
-- `FIREBASE_SERVICE_ACCOUNT`
-
-## 音源ファイル
-
-音源 MP3 は `static/sounds/c/` に置き、Firebase Hosting から配信しています。リポジトリ clone 後はこのディレクトリにファイルがある前提です。
-
-Storage から再取得する場合（初回セットアップや復旧時）:
-
-> 2026年2月以降、Firebase Storage の API 利用には Blaze プランが必要です（[FAQ](https://firebase.google.com/docs/storage/faqs-storage-changes-announced-sept-2024)）。無料枠内であれば課金されません。
-
-```bash
-npm run download-sounds
-npm run generate
-firebase deploy --only hosting
-```
-
-## プロジェクト構成
-
-```
-components/     Instrument.vue, Canvas.vue
-data/           tracks.json, presets.json, skins.json
-lib/            mix.js（スナップショット・Firestore）
-pages/          index.vue（メイン画面と `/mix/:id`）
-plugins/        firebase.js, tone.client.js
-firestore.rules ミックスの公開読み取り・作成のみ
-static/sounds/  音源 MP3
-scripts/        download-sounds.mjs
-```
+| ドキュメント | 内容 |
+| --- | --- |
+| [docs/runbook.md](docs/runbook.md) | ローカル開発、デプロイ、音源、障害時 |
+| [docs/architecture.md](docs/architecture.md) | コンポーネント、音声パイプライン、ルート |
+| [docs/domain.md](docs/domain.md) | Mix / レイヤー、Firestore 形状 |
+| [docs/adr.md](docs/adr.md) | 技術選定 ADR |
+| [lib/mix.js](lib/mix.js) | 検証・Firestore（コード正本） |
 
 ## 今後の構想
 

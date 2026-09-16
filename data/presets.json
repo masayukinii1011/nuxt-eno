@@ -1,8 +1,8 @@
 [
   {
-    "id": "reset",
-    "label": "Reset",
-    "description": "すべてのレイヤーを初期状態に戻します",
+    "id": "quiet",
+    "label": "Quiet",
+    "description": "静かな土台に戻します。すべてのレイヤーを初期状態にします",
     "values": {
       "volume": -64,
       "filter": 10,
@@ -12,11 +12,23 @@
     }
   },
   {
-    "id": "soft-ambient",
-    "label": "Soft Ambient",
-    "description": "穏やかで柔らかいミックス",
+    "id": "bright-air",
+    "label": "Bright Air",
+    "description": "明るく軽やかに広がる、開放的なアンビエント",
     "values": {
-      "volume": -20,
+      "volume": -14,
+      "filter": 9.5,
+      "vibrato": 1,
+      "tremolo": 0.5,
+      "panner": 3
+    }
+  },
+  {
+    "id": "dreamscape",
+    "label": "Dreamscape",
+    "description": "やわらかく広がる、穏やかなアンビエント",
+    "values": {
+      "volume": -19.5,
       "filter": 6,
       "vibrato": 2,
       "tremolo": 1,
@@ -28,35 +40,35 @@
     "label": "Deep Focus",
     "description": "集中向けの落ち着いた低域中心ミックス",
     "values": {
-      "volume": -28,
-      "filter": 8,
+      "volume": -20,
+      "filter": 3.5,
       "vibrato": 0,
       "tremolo": 0.5,
       "panner": 0
     }
   },
   {
-    "id": "dreamscape",
-    "label": "Dreamscape",
-    "description": "浮遊感のある広がりのあるミックス",
+    "id": "soft-vibe",
+    "label": "Soft Vibe",
+    "description": "浮遊感と揺らぎのある、ふわっとしたミックス",
     "values": {
       "volume": -16,
       "filter": 4,
       "vibrato": 6,
-      "tremolo": 2,
+      "tremolo": 1,
       "panner": 8
     }
   },
   {
-    "id": "minimal",
-    "label": "Minimal",
-    "description": "少数レイヤーだけを活かす控えめミックス",
+    "id": "slow-pulse",
+    "label": "Slow Pulse",
+    "description": "ゆっくりうねる、呼吸のようなリズム",
     "values": {
-      "volume": -48,
-      "filter": 10,
-      "vibrato": 0,
-      "tremolo": 0,
-      "panner": 4
+      "volume": -20,
+      "filter": 4.5,
+      "vibrato": 0.5,
+      "tremolo": 0.5,
+      "panner": 2
     }
   }
 ]
