@@ -28,7 +28,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0",
     "sass": "^1.103.1",
-    "sass-loader": "^10.5.2"
+    "sass-loader": "^17.0.1"
   },
   "overrides": {
     "postcss-selector-parser": "6.1.4",
